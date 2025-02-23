@@ -15,10 +15,11 @@ from src.services.users import UserService
 from src.services.email import send_email
 from src.database.db import get_db
 
+from src.conf import messages
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-# Реєстрація користувача
 @router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
@@ -32,14 +33,14 @@ async def register_user(
     if email_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Користувач з таким email вже існує",
+            detail=messages.USER_EMAIL_EXISTS,
         )
 
     username_user = await user_service.get_user_by_username(user_data.username)
     if username_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Користувач з таким іменем вже існує",
+            detail=messages.USER_USERNAME_EXISTS,
         )
     user_data.password = Hash().get_password_hash(user_data.password)
     new_user = await user_service.create_user(user_data)
@@ -49,15 +50,18 @@ async def register_user(
     return new_user
 
 
-# Логін користувача
 @router.post("/login", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def login_user(body: UserLogin, db: Session = Depends(get_db)):
     user_service = UserService(db)
     user = await user_service.get_user_by_email(body.email)
+    if user and not user.confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=messages.USER_NOT_CONFIRMED
+        )
     if not user or not Hash().verify_password(body.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неправильний логін або пароль",
+            detail=messages.USER_NOT_FOUND,
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -76,12 +80,12 @@ async def request_email(
     user = await user_service.get_user_by_email(body.email)
 
     if user.confirmed:
-        return {"message": "Ваша електронна пошта вже підтверджена"}
+        return {"message": messages.USER_EMAIL_CONFIRMED_ALREADY}
     if user:
         background_tasks.add_task(
             send_email, user.email, user.username, request.base_url
         )
-    return {"message": "Перевірте свою електронну пошту для підтвердження"}
+    return {"message": messages.CHECK_YOUR_EMAIL}
 
 
 @router.get("/confirmed_email/{token}")
@@ -94,6 +98,6 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
         )
     if user.confirmed:
-        return {"message": "Ваша електронна пошта вже підтверджена"}
+        return {"message": messages.USER_EMAIL_CONFIRMED_ALREADY}
     await user_service.confirmed_email(email)
-    return {"message": "Електронну пошту підтверджено"}
+    return {"message": messages.USER_EMAIL_CONFIRMED}
