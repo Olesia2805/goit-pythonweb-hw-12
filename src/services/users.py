@@ -3,6 +3,7 @@ from libgravatar import Gravatar
 
 from src.repository.users import UserRepository
 from src.schemas.users import UserCreate
+import logging
 
 
 class UserService:
@@ -15,7 +16,7 @@ class UserService:
             g = Gravatar(body.email)
             avatar = g.get_image()
         except Exception as e:
-            print(e)
+            logging.error(f"Error occurred while fetching avatar: {e}")
 
         return await self.repository.create_user(body, avatar)
 

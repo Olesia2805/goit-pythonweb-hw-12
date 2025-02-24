@@ -31,7 +31,7 @@ app.add_middleware(
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
         status_code=429,
-        content={"error": "Перевищено ліміт запитів. Спробуйте пізніше."},
+        content={"error": messages.RATE_LIMIT_EXCEEDED},
     )
 
 

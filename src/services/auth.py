@@ -14,6 +14,7 @@ from jose import JWTError, jwt
 from src.database.db import get_db
 from src.conf.config import settings
 from src.services.users import UserService
+from src.conf import messages
 
 
 class Hash:
@@ -29,7 +30,6 @@ class Hash:
 oauth2_scheme = HTTPBearer()
 
 
-# define a function to generate a new access token
 async def create_access_token(data: dict, expires_delta: Optional[int] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -49,12 +49,11 @@ async def get_current_user(
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail=messages.INVALID_CREDENTIALS,
         headers={"WWW-Authenticate": "Bearer"},
     )
 
     try:
-        # Decode JWT
         payload = jwt.decode(
             token.credentials, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
@@ -89,5 +88,5 @@ async def get_email_from_token(token: str):
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Невірний токен для перевірки електронної пошти",
+            detail=messages.INVALID_EMAIL_TOKEN,
         )
