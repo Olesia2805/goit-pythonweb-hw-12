@@ -9,12 +9,24 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
 )
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
+import redis
+from redis_lru import RedisLRU
+import json
+import logging
 
 from src.database.db import get_db
 from src.conf.config import settings
 from src.services.users import UserService
+from src.schemas.users import User
+
 from src.conf import messages
+
+client = redis.StrictRedis(host="localhost", port=6379, password=None)
+redis = RedisLRU(client, default_ttl=10 * 60)
+
+logging.basicConfig(level=logging.INFO)
 
 
 class Hash:
@@ -45,7 +57,7 @@ async def create_access_token(data: dict, expires_delta: Optional[int] = None):
 
 async def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -62,10 +74,27 @@ async def get_current_user(
             raise credentials_exception
     except JWTError as e:
         raise credentials_exception
+
+    # logging.info("Checking user: " + username)
+
+    cache_key = f"user:{username}"
+    cached_user = redis.get(cache_key)
+
+    if cached_user:
+        logging.info("User found in cache: " + username)
+        return cached_user
+
+    # logging.info("User not found in cache, fetching from database: " + username)
+
     user_service = UserService(db)
     user = await user_service.get_user_by_username(username)
+
     if user is None:
         raise credentials_exception
+
+    # logging.info("User saved to cache: " + username)
+
+    redis.set(cache_key, user)
     return user
 
 

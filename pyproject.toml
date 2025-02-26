@@ -28,6 +28,8 @@ pytest-asyncio = "^0.25.3"
 httpx = "^0.28.1"
 aiosqlite = "^0.21.0"
 pytest-cov = "^6.0.0"
+redis = "^5.2.1"
+redis-lru = "^0.1.2"
 
 
 [tool.poetry.group.dev.dependencies]
