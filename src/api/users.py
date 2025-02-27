@@ -5,7 +5,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.users import User
-from src.services.auth import get_current_user
+from src.services.auth import get_current_user, get_current_user_role
 from src.database.db import get_db
 from src.services.users import UserService
 from src.services.upload_file import UploadFileService
@@ -29,7 +29,8 @@ async def me(request: Request, user: User = Depends(get_current_user)):
 @router.patch("/avatar", response_model=User)
 async def update_avatar_user(
     file: UploadFile = File(),
-    user: User = Depends(get_current_user),
+    # user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user_role),
     db: AsyncSession = Depends(get_db),
 ):
     avatar_url = UploadFileService(

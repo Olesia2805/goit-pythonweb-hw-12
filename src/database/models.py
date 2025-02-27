@@ -1,9 +1,13 @@
 from datetime import datetime, date
 
-from sqlalchemy import Column, Integer, String, Boolean, func, Table
+from sqlalchemy import Column, Integer, String, Boolean, func, Enum as SQLEnum
 from sqlalchemy.orm import relationship, mapped_column, Mapped, DeclarativeBase
-from sqlalchemy.sql.schema import ForeignKey, PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import DateTime, Date
+
+import enum
+
+# from src.database.db import engine
 
 
 class Base(DeclarativeBase):
@@ -26,10 +30,15 @@ class Contact(Base):
     user_id = Column(
         "user_id", ForeignKey("users.id", ondelete="CASCADE"), default=None
     )
-    user = relationship("User", backref="notes")
+    user = relationship("User", backref="contacts")
     __table_args__ = (
         UniqueConstraint("first_name", "last_name", "user_id", name="unique_contact"),
     )
+
+
+class UserRole(enum.Enum):
+    USER = "user"
+    ADMIN = "admin"
 
 
 class User(Base):
@@ -41,3 +50,4 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
     avatar = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
+    role = Column(SQLEnum(UserRole), default=UserRole.USER, nullable=False)

@@ -4,22 +4,19 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
 from fastapi.security import (
-    OAuth2PasswordBearer,
     HTTPBearer,
     HTTPAuthorizationCredentials,
 )
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
 import redis
 from redis_lru import RedisLRU
-import json
 import logging
 
 from src.database.db import get_db
 from src.conf.config import settings
 from src.services.users import UserService
-from src.schemas.users import User
+from src.schemas.users import User, UserRole
 
 from src.conf import messages
 
@@ -119,3 +116,12 @@ async def get_email_from_token(token: str):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=messages.INVALID_EMAIL_TOKEN,
         )
+
+
+def get_current_user_role(current_user: User = Depends(get_current_user)):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=messages.ACCESS_DENIED,
+        )
+    return current_user
