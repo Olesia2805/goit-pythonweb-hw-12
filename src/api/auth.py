@@ -12,7 +12,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HT
 from src.schemas.users import UserCreate, Token, User, UserLogin, RequestEmail
 from src.services.auth import create_access_token, Hash, get_email_from_token
 from src.services.users import UserService
-from src.services.email import send_email
+from src.services.email import send_email, change_password
 from src.database.db import get_db
 
 from src.conf import messages
@@ -88,7 +88,7 @@ async def request_email(
     return {"message": messages.CHECK_YOUR_EMAIL}
 
 
-@router.get("/confirmed_email/{token}")
+@router.get("/confirmed_email/{token}", status_code=status.HTTP_200_OK)
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
     email = await get_email_from_token(token)
     user_service = UserService(db)
@@ -101,3 +101,36 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
         return {"message": messages.USER_EMAIL_CONFIRMED_ALREADY}
     await user_service.confirmed_email(email)
     return {"message": messages.USER_EMAIL_CONFIRMED}
+
+
+@router.post("/reset_password", status_code=status.HTTP_201_CREATED)
+async def reset_password(
+    body: RequestEmail,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user_service = UserService(db)
+    user = await user_service.get_user_by_email(body.email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_NOT_FOUND
+        )
+    background_tasks.add_task(
+        change_password, user.email, user.username, request.base_url
+    )
+    return {"message": messages.CHECK_YOUR_EMAIL}
+
+
+@router.patch("/update_password/{token}", status_code=status.HTTP_200_OK)
+async def update_password(token: str, new_password: str, db: Session = Depends(get_db)):
+    email = await get_email_from_token(token)
+    user_service = UserService(db)
+    user = await user_service.get_user_by_email(email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
+        )
+    new_password = Hash().get_password_hash(new_password)
+    await user_service.update_user(email, new_password)
+    return {"message": messages.USER_PASSWORD_UPDATED}

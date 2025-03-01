@@ -27,7 +27,7 @@ test_user = {
     "username": "deadpool",
     "email": "deadpool@example.com",
     "password": "12345678",
-    "role": "user",
+    "role": "USER",
 }
 
 
