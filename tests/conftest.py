@@ -27,6 +27,7 @@ test_user = {
     "username": "deadpool",
     "email": "deadpool@example.com",
     "password": "12345678",
+    "role": "user",
 }
 
 
@@ -44,6 +45,7 @@ def init_models_wrap():
                 hashed_password=hash_password,
                 confirmed=True,
                 avatar="<https://twitter.com/gravatar>",
+                role=test_user["role"],
             )
             session.add(current_user)
             await session.commit()
