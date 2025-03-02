@@ -111,7 +111,7 @@ async def reset_password(
     db: Session = Depends(get_db),
 ):
     user_service = UserService(db)
-    user = await user_service.get_user_by_email(body.email)
+    user = user_service.get_user_by_email(body.email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_NOT_FOUND
@@ -129,7 +129,7 @@ async def update_password(token: str, new_password: str, db: Session = Depends(g
     user = await user_service.get_user_by_email(email)
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
+            status_code=status.HTTP_400_BAD_REQUEST, detail=messages.CONTACT_NOT_FOUND
         )
     new_password = Hash().get_password_hash(new_password)
     await user_service.update_password(email, new_password)

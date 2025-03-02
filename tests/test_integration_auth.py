@@ -114,3 +114,64 @@ def test_request_email(client):
     assert response.status_code == status.HTTP_201_CREATED, response.text
     data = response.json()
     assert data["message"] == messages.USER_EMAIL_CONFIRMED_ALREADY
+
+
+def test_reset_password_user_not_found(client, monkeypatch):
+    mock_get_user_by_email = Mock(return_value=None)
+    monkeypatch.setattr(
+        "src.services.users.UserService.get_user_by_email", mock_get_user_by_email
+    )
+
+    response = client.post(
+        "api/auth/reset_password",
+        json={"email": "nonexistent@example.com"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
+    data = response.json()
+    assert data["detail"] == messages.USER_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_register_existing_email(client):
+    async with TestingSessionLocal() as session:
+        current_user = await session.execute(
+            select(User).where(User.email == user_data.get("email"))
+        )
+        current_user = current_user.scalar_one_or_none()
+        if current_user:
+            current_user.confirmed = True
+            await session.commit()
+
+    response = client.post(
+        "api/auth/register",
+        json={
+            "username": user_data.get("username"),
+            "email": user_data.get("email"),
+            "password": user_data.get("password"),
+            "role": user_data.get("role"),
+        },
+    )
+    if user_data.get("email"):
+        assert response.status_code == status.HTTP_409_CONFLICT, response.text
+        data = response.json()
+        assert data["detail"] == messages.USER_EMAIL_EXISTS
+
+
+def test_register_existing_username(client, monkeypatch):
+    mock_get_user_by_username = Mock(return_value=None)
+    monkeypatch.setattr(
+        "src.services.users.UserService.get_user_by_username", mock_get_user_by_username
+    )
+
+    response = client.post(
+        "api/auth/register",
+        json={
+            "username": user_data.get("username"),
+            "email": user_data.get("email"),
+            "password": user_data.get("password"),
+            "role": user_data.get("role"),
+        },
+    )
+    assert response.status_code == status.HTTP_409_CONFLICT, response.text
+    data = response.json()
+    assert data["detail"] == messages.USER_EMAIL_EXISTS
