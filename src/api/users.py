@@ -23,6 +23,17 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.get("/me", response_model=User)
 @limiter.limit("5/minute")
 async def me(request: Request, user: User = Depends(get_current_user)):
+    """
+    Return the current authenticated user.
+
+    Args:
+    request: FastAPI request object.
+    user: User object representing the authenticated user.
+
+    Returns:
+    User object representing the current authenticated user.
+    """
+
     return user
 
 
@@ -33,6 +44,18 @@ async def update_avatar_user(
     user: User = Depends(get_current_user_role),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Update the avatar URL of the authenticated user.
+
+    Args:
+    file: UploadFile object containing the user's avatar image.
+    user: User object representing the authenticated user.
+    db: AsyncSession object for database operations.
+
+    Returns:
+    User object representing the updated user with the new avatar URL.
+    """
+
     avatar_url = UploadFileService(
         settings.CLD_NAME, settings.CLD_API_KEY, settings.CLD_API_SECRET
     ).upload_file(file, user.username)

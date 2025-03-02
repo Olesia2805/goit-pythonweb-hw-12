@@ -27,6 +27,19 @@ async def register_user(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Register a new user.
+
+    Args:
+    user_data: UserCreate - User data to create a new user.
+    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
+    request: Request - FastAPI's current request object.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    User - Created user.
+    """
+
     user_service = UserService(db)
 
     email_user = await user_service.get_user_by_email(user_data.email)
@@ -52,6 +65,17 @@ async def register_user(
 
 @router.post("/login", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def login_user(body: UserLogin, db: Session = Depends(get_db)):
+    """
+    Login a user.
+
+    Args:
+    body: UserLogin - User data to login.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    Token - User's access token.
+    """
+
     user_service = UserService(db)
     user = await user_service.get_user_by_email(body.email)
     if user and not user.confirmed:
@@ -76,6 +100,19 @@ async def request_email(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Request email verification for a user.
+
+    Args:
+    body: RequestEmail - User's email to send the verification email.
+    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
+    request: Request - FastAPI's current request object.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    str - Message indicating if the email has been sent or if the user already exists.
+    """
+
     user_service = UserService(db)
     user = await user_service.get_user_by_email(body.email)
 
@@ -83,13 +120,24 @@ async def request_email(
         return {"message": messages.USER_EMAIL_CONFIRMED_ALREADY}
     if user:
         background_tasks.add_task(
-            send_email, user.email, user.username, request.base_url, type="reset"
+            send_email, user.email, user.username, request.base_url, type="verify"
         )
     return {"message": messages.CHECK_YOUR_EMAIL}
 
 
 @router.get("/confirmed_email/{token}", status_code=status.HTTP_200_OK)
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+    """
+    Confirm user's email.
+
+    Args:
+    token: str - Token from the email verification link.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    str - Message indicating if the email has been confirmed or if the user already exists.
+    """
+
     email = await get_email_from_token(token)
     user_service = UserService(db)
     user = await user_service.get_user_by_email(email)
@@ -110,6 +158,19 @@ async def reset_password(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Reset user's password.
+
+    Args:
+    body: RequestEmail - User's email to reset password.
+    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
+    request: Request - FastAPI's current request object.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    str - Message indicating if the email has been sent or if the user already exists.
+    """
+
     user_service = UserService(db)
     user = user_service.get_user_by_email(body.email)
     if user is None:
@@ -117,13 +178,24 @@ async def reset_password(
             status_code=status.HTTP_400_BAD_REQUEST, detail=messages.USER_NOT_FOUND
         )
     background_tasks.add_task(
-        change_password, user.email, user.username, request.base_url
+        send_email, user.email, user.username, request.base_url, type="reset"
     )
     return {"message": messages.CHECK_YOUR_EMAIL}
 
 
 @router.patch("/update_password/{token}", status_code=status.HTTP_200_OK)
 async def update_password(token: str, new_password: str, db: Session = Depends(get_db)):
+    """
+    Update user's password.
+
+    Args:
+    token: str - Token from the password reset link.
+    new_password: str - New password to update.
+    db: Session - SQLAlchemy's database session.
+
+    Returns:
+    str - Message indicating if the password has been updated or if the contact does not exist.
+    """
     email = await get_email_from_token(token)
     user_service = UserService(db)
     user = await user_service.get_user_by_email(email)
