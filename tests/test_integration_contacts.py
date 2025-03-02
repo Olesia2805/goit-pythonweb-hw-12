@@ -2,7 +2,9 @@ import datetime
 from fastapi import status
 from src.conf import messages
 import pytest
+from pytest import MonkeyPatch
 from fastapi.exceptions import HTTPException
+from unittest.mock import AsyncMock
 
 test_contact = {
     "first_name": "John",
@@ -12,6 +14,31 @@ test_contact = {
     "birthday": "1990-01-01",
     "additional_data": "Some additional data",
 }
+
+mock_contacts = [
+    {
+        "id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john@example.com",
+        "phone_number": "1234567890",
+        "birthday": "1990-01-01",
+        "additional_data": "Some notes",
+        "created_at": "2025-01-01 00:00:00",
+        "updated_at": "2025-01-01 00:00:00",
+    },
+    {
+        "id": 2,
+        "first_name": "Johnny",
+        "last_name": "Appleseed",
+        "email": "johnny@example.com",
+        "phone_number": "9876543210",
+        "birthday": "1985-05-15",
+        "additional_data": "Another note",
+        "created_at": "2025-01-01 00:00:00",
+        "updated_at": "2025-01-01 00:00:00",
+    },
+]
 
 
 def test_create_contact(client, get_token):
@@ -125,3 +152,37 @@ def test_repeat_delete_contact(client, get_token):
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
     data = response.json()
     assert data["detail"] == messages.CONTACT_NOT_FOUND
+
+
+def test_search_contacts_no_match(client, get_token, monkeypatch):
+    mock_contact_service = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        "src.services.contacts.ContactService.search_contacts", mock_contact_service
+    )
+    response = client.get(
+        "/api/contacts/search/",
+        params={"text": "John", "skip": 0, "limit": 10},
+        headers={"Authorization": f"Bearer {get_token}"},
+    )
+    assert response.status_code == status.HTTP_200_OK, response.text
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 0, f"Expected empty list, got {data}"
+
+
+def test_search_contacts_no_match(client, get_token, monkeypatch):
+    mock_contact_service = AsyncMock(return_value=mock_contacts)
+    monkeypatch.setattr(
+        "src.services.contacts.ContactService.search_contacts", mock_contact_service
+    )
+    response = client.get(
+        "/api/contacts/search/",
+        params={"text": "John", "skip": 0, "limit": 10},
+        headers={"Authorization": f"Bearer {get_token}"},
+    )
+    assert response.status_code == status.HTTP_200_OK, response.text
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == len(
+        mock_contacts
+    ), f"Expected {len(mock_contacts)} results, got {len(data)}"

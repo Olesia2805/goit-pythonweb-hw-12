@@ -82,7 +82,9 @@ async def remove_contact(
     return
 
 
-@router.get("/search/", response_model=List[ContactResponse])
+@router.get(
+    "/search/", response_model=List[ContactResponse], status_code=status.HTTP_200_OK
+)
 async def search_contacts(
     text: str,
     skip: int = 0,
