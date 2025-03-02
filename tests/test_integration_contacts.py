@@ -8,6 +8,8 @@ from datetime import date, timedelta
 from pydantic import ValidationError
 from src.schemas.contacts import ContactBase
 from src.services.contacts import ContactService
+from src.repository.contacts import ContactRepository
+from src.database.models import User
 
 from src.conf import messages
 
@@ -91,7 +93,11 @@ def test_get_contact_not_found(client, get_token):
     assert data["detail"] == messages.CONTACT_NOT_FOUND
 
 
-def test_get_contacts(client, get_token):
+def test_get_contacts(client, get_token, monkeypatch):
+    mock_contact_service = AsyncMock(return_value=mock_contacts)
+    monkeypatch.setattr(
+        "src.services.contacts.ContactService.get_contacts", mock_contact_service
+    )
     response = client.get(
         "/api/contacts", headers={"Authorization": f"Bearer {get_token}"}
     )
