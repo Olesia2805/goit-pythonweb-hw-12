@@ -1,20 +1,28 @@
 from unittest.mock import Mock
-from fastapi import status
+from fastapi import status, HTTPException
 
 import pytest
 from sqlalchemy import select
 
-from src.database.models import User
+from src.database.models import User, UserRole
 from src.conf import messages
 from tests.conftest import TestingSessionLocal
 from src.services.users import UserService
 from src.schemas.users import UserCreate
+from src.services.auth import get_current_user_role
 
 user_data = {
     "username": "agent007",
     "email": "agent007@gmail.com",
     "password": "12345678",
-    "role": "user",
+    "role": UserRole.USER.value,
+}
+
+admin_data = {
+    "username": "Tina037",
+    "email": "Tina037@gmail.com",
+    "password": "785632149",
+    "role": UserRole.ADMIN.value,
 }
 
 
@@ -175,3 +183,18 @@ def test_register_existing_username(client, monkeypatch):
     assert response.status_code == status.HTTP_409_CONFLICT, response.text
     data = response.json()
     assert data["detail"] == messages.USER_EMAIL_EXISTS
+
+
+def test_get_current_user_role_admin():
+    result = get_current_user_role(admin_data)
+    assert (
+        result.get("role") == UserRole.ADMIN.value
+    ), f"Expected role ADMIN, got {result.get("role")}"
+
+
+def test_get_current_user_role_non_admin():
+    with pytest.raises(HTTPException) as exc_info:
+        get_current_user_role(user_data)
+
+    assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
+    assert exc_info.value.detail == messages.ACCESS_DENIED

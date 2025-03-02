@@ -118,8 +118,8 @@ async def get_email_from_token(token: str):
         )
 
 
-def get_current_user_role(current_user: User = Depends(get_current_user)):
-    if current_user.role != UserRole.ADMIN:
+def get_current_user_role(current_user: dict):
+    if current_user["role"] != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=messages.ACCESS_DENIED,
