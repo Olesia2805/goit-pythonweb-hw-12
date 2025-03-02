@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock
 from datetime import date, timedelta
 from pydantic import ValidationError
 from src.schemas.contacts import ContactBase
+from src.services.contacts import ContactService
 
 from src.conf import messages
 
@@ -156,22 +157,6 @@ def test_repeat_delete_contact(client, get_token):
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
     data = response.json()
     assert data["detail"] == messages.CONTACT_NOT_FOUND
-
-
-def test_search_contacts_no_match(client, get_token, monkeypatch):
-    mock_contact_service = AsyncMock(return_value=[])
-    monkeypatch.setattr(
-        "src.services.contacts.ContactService.search_contacts", mock_contact_service
-    )
-    response = client.get(
-        "/api/contacts/search/",
-        params={"text": "John", "skip": 0, "limit": 10},
-        headers={"Authorization": f"Bearer {get_token}"},
-    )
-    assert response.status_code == status.HTTP_200_OK, response.text
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 0, f"Expected empty list, got {data}"
 
 
 def test_search_contacts_no_match(client, get_token, monkeypatch):
