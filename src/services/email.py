@@ -47,7 +47,7 @@ async def change_password(email: EmailStr, username: str, host: str):
     try:
         token_reset = create_email_token({"sub": email})
         message = MessageSchema(
-            subject="Reset your password",
+            subject=f"{username}, reset",
             recipients=[email],
             template_body={
                 "host": host,
@@ -60,7 +60,5 @@ async def change_password(email: EmailStr, username: str, host: str):
         await fm.send_message(message, template_name="reset_password.html")
     except ConnectionErrors as err:
         print(err)
-    except SMTPDataError as err:
-        print(f"SMTP error: {err}")
     except Exception as err:
         print(f"Unexpected error: {err}")

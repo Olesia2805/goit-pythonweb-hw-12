@@ -132,5 +132,5 @@ async def update_password(token: str, new_password: str, db: Session = Depends(g
             status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
         )
     new_password = Hash().get_password_hash(new_password)
-    await user_service.update_user(email, new_password)
+    await user_service.update_password(email, new_password)
     return {"message": messages.USER_PASSWORD_UPDATED}
