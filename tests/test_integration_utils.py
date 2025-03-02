@@ -1,7 +1,6 @@
 from fastapi import status
+from unittest.mock import Mock, MagicMock
 from src.conf import messages
-
-from src.database.db import get_db
 
 
 def test_healthchecker_success(client):

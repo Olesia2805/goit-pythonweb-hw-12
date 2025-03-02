@@ -23,11 +23,21 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(email: EmailStr, username: str, host: str, type: str):
+    settings = {
+        "verify": {
+            "subject": "Confirm your email",
+            "template": "verify_email.html",
+        },
+        "reset": {
+            "subject": "Reset",
+            "template": "reset_password.html",
+        },
+    }
     try:
         token_verification = create_email_token({"sub": email})
         message = MessageSchema(
-            subject="Confirm your email",
+            subject=settings[type]["subject"],
             recipients=[email],
             template_body={
                 "host": host,
@@ -38,27 +48,6 @@ async def send_email(email: EmailStr, username: str, host: str):
         )
 
         fm = FastMail(conf)
-        await fm.send_message(message, template_name="verify_email.html")
+        await fm.send_message(message, template_name=settings[type]["template"])
     except ConnectionErrors as err:
         print(err)
-
-
-async def change_password(email: EmailStr, username: str, host: str):
-    try:
-        token_reset = create_email_token({"sub": email})
-        message = MessageSchema(
-            subject=f"{username}, reset",
-            recipients=[email],
-            template_body={
-                "host": host,
-                "username": username,
-                "token": token_reset,
-            },
-            subtype=MessageType.html,
-        )
-        fm = FastMail(conf)
-        await fm.send_message(message, template_name="reset_password.html")
-    except ConnectionErrors as err:
-        print(err)
-    except Exception as err:
-        print(f"Unexpected error: {err}")

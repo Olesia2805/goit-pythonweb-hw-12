@@ -12,7 +12,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HT
 from src.schemas.users import UserCreate, Token, User, UserLogin, RequestEmail
 from src.services.auth import create_access_token, Hash, get_email_from_token
 from src.services.users import UserService
-from src.services.email import send_email, change_password
+from src.services.email import send_email
 from src.database.db import get_db
 
 from src.conf import messages
@@ -45,7 +45,7 @@ async def register_user(
     user_data.password = Hash().get_password_hash(user_data.password)
     new_user = await user_service.create_user(user_data)
     background_tasks.add_task(
-        send_email, new_user.email, new_user.username, request.base_url
+        send_email, new_user.email, new_user.username, request.base_url, type="verify"
     )
     return new_user
 
@@ -83,7 +83,7 @@ async def request_email(
         return {"message": messages.USER_EMAIL_CONFIRMED_ALREADY}
     if user:
         background_tasks.add_task(
-            send_email, user.email, user.username, request.base_url
+            send_email, user.email, user.username, request.base_url, type="reset"
         )
     return {"message": messages.CHECK_YOUR_EMAIL}
 
