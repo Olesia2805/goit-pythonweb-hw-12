@@ -1,5 +1,5 @@
-import cloudinary
-import cloudinary.uploader
+import cloudinary  # type: ignore
+import cloudinary.uploader  # type: ignore
 
 
 class UploadFileService:

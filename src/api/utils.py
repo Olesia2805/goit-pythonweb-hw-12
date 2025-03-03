@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
+from fastapi import APIRouter, Depends, HTTPException, status  # type: ignore
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
+from sqlalchemy import text  # type: ignore
 
 from src.database.db import get_db
 
-from src.conf import messages
+from src.configuration import messages
 
 router = APIRouter(tags=["utils"])
 

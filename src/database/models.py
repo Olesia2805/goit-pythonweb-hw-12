@@ -1,9 +1,9 @@
 from datetime import datetime, date
 
-from sqlalchemy import Column, Integer, String, Boolean, func, Enum as SQLEnum
-from sqlalchemy.orm import relationship, mapped_column, Mapped, DeclarativeBase
-from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint
-from sqlalchemy.sql.sqltypes import DateTime, Date
+from sqlalchemy import Column, Integer, String, Boolean, func, Enum as SQLEnum  # type: ignore
+from sqlalchemy.orm import relationship, mapped_column, Mapped, DeclarativeBase  # type: ignore
+from sqlalchemy.sql.schema import ForeignKey, UniqueConstraint  # type: ignore
+from sqlalchemy.sql.sqltypes import DateTime, Date  # type: ignore
 
 import enum
 
@@ -11,6 +11,10 @@ import enum
 
 
 class Base(DeclarativeBase):
+    """
+    Base class for all models, providing created_at and updated_at timestamps.
+    """
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
@@ -18,6 +22,10 @@ class Base(DeclarativeBase):
 
 
 class Contact(Base):
+    """
+    Represents a contact entity with personal information and a relationship to a user.
+    """
+
     __tablename__ = "contacts"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -37,11 +45,19 @@ class Contact(Base):
 
 
 class UserRole(enum.Enum):
+    """
+    Enum for user roles.
+    """
+
     USER = "user"
     ADMIN = "admin"
 
 
 class User(Base):
+    """
+    Represents a user entity with authentication and profile information.
+    """
+
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True)

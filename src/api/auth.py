@@ -1,21 +1,19 @@
-from fastapi import (
+from fastapi import (  # type: ignore
     APIRouter,
     HTTPException,
     Depends,
     status,
-    Security,
     BackgroundTasks,
     Request,
 )
-from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, HTTPBearer
+from sqlalchemy.orm import Session  # type: ignore
 from src.schemas.users import UserCreate, Token, User, UserLogin, RequestEmail
 from src.services.auth import create_access_token, Hash, get_email_from_token
 from src.services.users import UserService
 from src.services.email import send_email
 from src.database.db import get_db
 
-from src.conf import messages
+from src.configuration import messages
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

@@ -1,14 +1,12 @@
 from unittest.mock import Mock
-from fastapi import status, HTTPException
+from fastapi import status, HTTPException  # type: ignore
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import select  # type: ignore
 
 from src.database.models import User, UserRole
-from src.conf import messages
+from src.configuration import messages
 from tests.conftest import TestingSessionLocal
-from src.services.users import UserService
-from src.schemas.users import UserCreate
 from src.services.auth import get_current_user_role
 
 user_data = {

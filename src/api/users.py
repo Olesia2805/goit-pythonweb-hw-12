@@ -1,16 +1,15 @@
-from fastapi import APIRouter, Depends, Request, FastAPI, File, UploadFile
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.middleware import SlowAPIMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Request, FastAPI, File, UploadFile  # type: ignore
+from slowapi import Limiter  # type: ignore
+from slowapi.util import get_remote_address  # type: ignore
+from slowapi.middleware import SlowAPIMiddleware  # type: ignore
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
 
 from src.schemas.users import User
 from src.services.auth import get_current_user, get_current_user_role
 from src.database.db import get_db
 from src.services.users import UserService
 from src.services.upload_file import UploadFileService
-from src.conf.config import settings
-from src.database.models import Contact
+from src.configuration.config import settings
 
 limiter = Limiter(key_func=get_remote_address)
 

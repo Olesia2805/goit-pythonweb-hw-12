@@ -1,8 +1,8 @@
 from datetime import datetime, date
-from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict, EmailStr, field_validator
+from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict, EmailStr, field_validator  # type: ignore
 
-from src.conf import messages
+from src.configuration import messages
 
 
 class ContactBase(BaseModel):

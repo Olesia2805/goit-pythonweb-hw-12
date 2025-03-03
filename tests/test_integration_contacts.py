@@ -1,17 +1,14 @@
 import datetime
-from fastapi import status
+from fastapi import status  # type: ignore
 import pytest
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException  # type: ignore
 from unittest.mock import AsyncMock
 
 from datetime import date, timedelta
-from pydantic import ValidationError
+from pydantic import ValidationError  # type: ignore
 from src.schemas.contacts import ContactBase
-from src.services.contacts import ContactService
-from src.repository.contacts import ContactRepository
-from src.database.models import User
 
-from src.conf import messages
+from src.configuration import messages
 
 test_contact = {
     "first_name": "John",

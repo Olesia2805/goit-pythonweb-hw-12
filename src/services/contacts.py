@@ -1,8 +1,8 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
 
 from src.database.models import User
 from src.repository.contacts import ContactRepository
-from src.schemas.contacts import ContactBase, ContactResponse
+from src.schemas.contacts import ContactBase
 
 
 class ContactService:

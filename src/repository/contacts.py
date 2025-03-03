@@ -1,12 +1,11 @@
 from datetime import timedelta
 from typing import List
 
-from sqlalchemy import Integer, and_, extract, func, or_, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy import Integer, extract, func, or_, select  # type: ignore
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
 
 from src.database.models import Contact, User
-from src.schemas.contacts import ContactBase, ContactResponse
+from src.schemas.contacts import ContactBase
 
 
 class ContactRepository:

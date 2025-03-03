@@ -1,5 +1,5 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from libgravatar import Gravatar
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
+from libgravatar import Gravatar  # type: ignore
 
 from src.repository.users import UserRepository
 from src.schemas.users import UserCreate

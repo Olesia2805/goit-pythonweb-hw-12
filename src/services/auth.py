@@ -1,24 +1,24 @@
 from datetime import datetime, timedelta, UTC
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
-from passlib.context import CryptContext
-from fastapi.security import (
+from fastapi import Depends, HTTPException, status  # type: ignore
+from passlib.context import CryptContext  # type: ignore
+from fastapi.security import (  # type: ignore
     HTTPBearer,
     HTTPAuthorizationCredentials,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
-from jose import JWTError, jwt
-import redis
-from redis_lru import RedisLRU
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
+from jose import JWTError, jwt  # type: ignore
+import redis  # type: ignore
+from redis_lru import RedisLRU  # type: ignore
 import logging
 
 from src.database.db import get_db
-from src.conf.config import settings
+from src.configuration.config import settings
 from src.services.users import UserService
-from src.schemas.users import User, UserRole
+from src.schemas.users import UserRole
 
-from src.conf import messages
+from src.configuration import messages
 
 client = redis.StrictRedis(host="localhost", port=6379, password=None)
 redis = RedisLRU(client, default_ttl=10 * 60)

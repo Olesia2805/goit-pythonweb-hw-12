@@ -8,6 +8,9 @@
 import sys
 import os
 
+# Add the project root directory to the sys.path
+sys.path.insert(0, os.path.abspath(".."))
+
 project = "Rest API"
 copyright = "2025, Olesia"
 author = "Olesia"

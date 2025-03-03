@@ -1,12 +1,11 @@
 from pathlib import Path
-from smtplib import SMTPDataError
 
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from fastapi_mail.errors import ConnectionErrors
-from pydantic import EmailStr
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType  # type: ignore
+from fastapi_mail.errors import ConnectionErrors  # type: ignore
+from pydantic import EmailStr  # type: ignore
 
 from src.services.auth import create_email_token
-from src.conf.config import settings
+from src.configuration.config import settings
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,

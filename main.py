@@ -1,13 +1,13 @@
-import uvicorn
+import uvicorn  # type: ignore
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from slowapi.errors import RateLimitExceeded
-from starlette.responses import JSONResponse
+from fastapi import FastAPI, Request  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware  # type: ignore
+from slowapi.errors import RateLimitExceeded  # type: ignore
+from starlette.responses import JSONResponse  # type: ignore
 
-from slowapi.errors import RateLimitExceeded
+from slowapi.errors import RateLimitExceeded  # type: ignore
 
-from src.conf import messages
+from src.configuration import messages
 from src.api import utils, contacts, auth, users
 
 app = FastAPI()
@@ -40,7 +40,10 @@ async def root():
     return {"message": messages.WELCOME_MESSAGE}
 
 
-if __name__ == "__main__":
-
+def main():
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, workers=4)
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=4)
+
+
+if __name__ == "__main__":
+    main()

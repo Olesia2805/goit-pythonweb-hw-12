@@ -1,9 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException, status  # type: ignore
+from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
 
-from src.conf import messages
+from src.configuration import messages
 from src.database.db import get_db
 from src.database.models import User
 from src.schemas.contacts import ContactBase, ContactBirthdayRequest, ContactResponse

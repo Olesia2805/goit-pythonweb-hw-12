@@ -1,14 +1,13 @@
 import asyncio
 
 import pytest
-import pytest_asyncio
-from fastapi.testclient import TestClient
-from unittest.mock import Mock
-from sqlalchemy.pool import StaticPool
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+import pytest_asyncio  # type: ignore
+from fastapi.testclient import TestClient  # type: ignore
+from sqlalchemy.pool import StaticPool  # type: ignore
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession  # type: ignore
 
 from main import app
-from src.database.models import Base, User, Contact
+from src.database.models import Base, User
 from src.database.db import get_db
 from src.services.auth import create_access_token, Hash
 

@@ -1,14 +1,4 @@
-from unittest.mock import Mock
-from fastapi import status
-
 import pytest
-from sqlalchemy import select
-
-from src.database.models import User
-from src.conf import messages
-from tests.conftest import TestingSessionLocal
-from src.services.users import UserService
-from src.schemas.users import UserCreate
 from src.services.email import send_email
 
 
