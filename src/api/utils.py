@@ -15,15 +15,14 @@ async def healthchecker(db: AsyncSession = Depends(get_db)):
     Check if the database connection is working.
 
     Args:
-    db (AsyncSession): Database session object.
+        db (AsyncSession): Database session object.
 
     Returns:
-    dict: Response containing the message "Database connection is working".
+        dict: A message indicating the health status.
 
     Raises:
-    HTTPException: If there is a problem with the database connection.
+        HTTPException: If there is an error connecting to the database.
     """
-
     try:
         result = await db.execute(text("SELECT 1"))
         result = result.scalar_one_or_none()

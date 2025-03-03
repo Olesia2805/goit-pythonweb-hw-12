@@ -30,9 +30,28 @@ class Hash:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def verify_password(self, plain_password, hashed_password):
+        """
+        Verify a plain password against a hashed password.
+
+        Args:
+            plain_password (str): The plain password.
+            hashed_password (str): The hashed password.
+
+        Returns:
+            bool: True if the password matches, False otherwise.
+        """
         return self.pwd_context.verify(plain_password, hashed_password)
 
     def get_password_hash(self, password: str):
+        """
+        Hash a plain password.
+
+        Args:
+            password (str): The plain password.
+
+        Returns:
+            str: The hashed password.
+        """
         return self.pwd_context.hash(password)
 
 
@@ -40,6 +59,16 @@ oauth2_scheme = HTTPBearer()
 
 
 async def create_access_token(data: dict, expires_delta: Optional[int] = None):
+    """
+    Create a JWT access token.
+
+    Args:
+        data (dict): The data to encode in the token.
+        expires_delta (Optional[int]): The expiration time in seconds. Defaults to None.
+
+    Returns:
+        str: The encoded JWT token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(UTC) + timedelta(seconds=expires_delta)
@@ -56,6 +85,19 @@ async def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Get the current authenticated user from the JWT token.
+
+    Args:
+        token (HTTPAuthorizationCredentials): The JWT token.
+        db (AsyncSession): The database session.
+
+    Returns:
+        User: The authenticated user.
+
+    Raises:
+        HTTPException: If the token is invalid or the user is not found.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=messages.INVALID_CREDENTIALS,
@@ -96,6 +138,15 @@ async def get_current_user(
 
 
 def create_email_token(data: dict):
+    """
+    Create a JWT token for email verification.
+
+    Args:
+        data (dict): The data to encode in the token.
+
+    Returns:
+        str: The encoded JWT token.
+    """
     to_encode = data.copy()
     expire = datetime.now(UTC) + timedelta(days=7)
     to_encode.update({"iat": datetime.now(UTC), "exp": expire})
@@ -104,6 +155,18 @@ def create_email_token(data: dict):
 
 
 async def get_email_from_token(token: str):
+    """
+    Get the email from the JWT token.
+
+    Args:
+        token (str): The JWT token.
+
+    Returns:
+        str: The email extracted from the token.
+
+    Raises:
+        HTTPException: If the token is invalid.
+    """
     try:
         payload = jwt.decode(
             token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
@@ -119,6 +182,18 @@ async def get_email_from_token(token: str):
 
 
 def get_current_user_role(current_user: dict):
+    """
+    Get the role of the current authenticated user.
+
+    Args:
+        current_user (dict): The current authenticated user.
+
+    Returns:
+        dict: The current authenticated user.
+
+    Raises:
+        HTTPException: If the user does not have the required role.
+    """
     if current_user["role"] != UserRole.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

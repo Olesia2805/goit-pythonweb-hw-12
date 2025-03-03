@@ -24,6 +24,18 @@ conf = ConnectionConfig(
 
 
 async def send_email(email: EmailStr, username: str, host: str, type: str):
+    """
+    Send an email for verification or password reset.
+
+    Args:
+        email (EmailStr): The recipient's email address.
+        username (str): The recipient's username.
+        host (str): The host URL.
+        type (str): The type of email to send ("verify" or "reset").
+
+    Raises:
+        ConnectionErrors: If there is an error sending the email.
+    """
     settings = {
         "verify": {
             "subject": "Confirm your email",

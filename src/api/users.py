@@ -27,20 +27,18 @@ async def me(request: Request, user: User = Depends(get_current_user)):
     Return the current authenticated user.
 
     Args:
-    request: FastAPI request object.
-    user: User object representing the authenticated user.
+        request (Request): FastAPI request object.
+        user (User): User object representing the authenticated user.
 
     Returns:
-    User object representing the current authenticated user.
+        User: The current authenticated user.
     """
-
     return user
 
 
 @router.patch("/avatar", response_model=User)
 async def update_avatar_user(
     file: UploadFile = File(),
-    # user: User = Depends(get_current_user),
     user: User = Depends(get_current_user_role),
     db: AsyncSession = Depends(get_db),
 ):
@@ -48,14 +46,13 @@ async def update_avatar_user(
     Update the avatar URL of the authenticated user.
 
     Args:
-    file: UploadFile object containing the user's avatar image.
-    user: User object representing the authenticated user.
-    db: AsyncSession object for database operations.
+        file (UploadFile): UploadFile object containing the user's avatar image.
+        user (User): User object representing the authenticated user.
+        db (AsyncSession): Database session object.
 
     Returns:
-    User object representing the updated user with the new avatar URL.
+        User: The updated user with the new avatar URL.
     """
-
     avatar_url = UploadFileService(
         settings.CLD_NAME, settings.CLD_API_KEY, settings.CLD_API_SECRET
     ).upload_file(file, user.username)

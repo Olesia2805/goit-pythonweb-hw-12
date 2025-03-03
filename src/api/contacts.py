@@ -24,15 +24,14 @@ async def read_contacts(
     Retrieve a list of contacts.
 
     Args:
-    skip: int (optional): Skip the first `skip` contacts. Defaults to 0.
-    limit: int (optional): Limit the number of contacts returned. Defaults to 100.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        skip (int, optional): Skip the first `skip` contacts. Defaults to 0.
+        limit (int, optional): Limit the number of contacts returned. Defaults to 100.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    List[ContactResponse]: List of contacts.
+        List[ContactResponse]: List of contacts.
     """
-
     contact_service = ContactService(db)
     contacts = await contact_service.get_contacts(skip, limit, user)
     return contacts
@@ -48,14 +47,16 @@ async def read_contact(
     Retrieve a specific contact by ID.
 
     Args:
-    contact_id: int: Contact ID.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        contact_id (int): Contact ID.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    ContactResponse: Specific contact.
-    """
+        ContactResponse: The contact if found.
 
+    Raises:
+        HTTPException: If the contact is not found.
+    """
     contact_service = ContactService(db)
     contact = await contact_service.get_contact(contact_id, user)
     if contact is None:
@@ -75,17 +76,13 @@ async def create_contact(
     Create a new contact.
 
     Args:
-    body: ContactBase: New contact data.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        body (ContactBase): New contact data.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    ContactResponse: Created contact.
-
-    Raises:
-    HTTPException: If the contact already exists.
+        ContactResponse: The created contact.
     """
-
     contact_service = ContactService(db)
     return await contact_service.create_contact(body, user)
 
@@ -101,18 +98,17 @@ async def update_contact(
     Update a specific contact by ID.
 
     Args:
-    contact_id: int: Contact ID.
-    body: ContactBase: Updated contact data.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        contact_id (int): Contact ID.
+        body (ContactBase): Updated contact data.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    ContactResponse: Updated contact.
+        ContactResponse: The updated contact.
 
     Raises:
-    HTTPException: If the contact does not exist.
+        HTTPException: If the contact is not found.
     """
-
     contact_service = ContactService(db)
     contact = await contact_service.update_contact(contact_id, body, user)
     if contact is None:
@@ -132,17 +128,16 @@ async def remove_contact(
     Remove a specific contact by ID.
 
     Args:
-    contact_id: int: Contact ID.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        contact_id (int): Contact ID.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    ContactResponse: Removed contact.
+        None
 
     Raises:
-    HTTPException: If the contact does not exist.
+        HTTPException: If the contact is not found.
     """
-
     contact_service = ContactService(db)
     contact = await contact_service.remove_contact(contact_id, user)
     if contact is None:
@@ -166,16 +161,15 @@ async def search_contacts(
     Retrieve a list of contacts whose names or email addresses contain the specified search query.
 
     Args:
-    text: str: Search query.
-    skip: int (optional): Skip the first `skip` contacts. Defaults to 0.
-    limit: int (optional): Limit the number of contacts returned. Defaults to 100.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        text (str): Search query.
+        skip (int, optional): Skip the first `skip` contacts. Defaults to 0.
+        limit (int, optional): Limit the number of contacts returned. Defaults to 100.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    List[ContactResponse]: List of contacts whose names or email addresses contain the specified search query.
+        List[ContactResponse]: List of contacts matching the search query.
     """
-
     contact_service = ContactService(db)
     contacts = await contact_service.search_contacts(text, skip, limit, user)
     return contacts
@@ -191,14 +185,13 @@ async def upcoming_birthdays(
     Retrieve a list of contacts whose birthday is within the specified number of days.
 
     Args:
-    body: ContactBirthdayRequest: Request body containing the number of days.
-    db: AsyncSession: Database session.
-    user: User: Current authenticated user.
+        body (ContactBirthdayRequest): Request body containing the number of days.
+        db (AsyncSession): Database session.
+        user (User): Current authenticated user.
 
     Returns:
-    List[ContactResponse]: List of contacts whose birthday is within the specified number of days.
+        List[ContactResponse]: List of contacts with upcoming birthdays.
     """
-
     contact_service = ContactService(db)
     contacts = await contact_service.upcoming_birthdays(body.days, user)
     return contacts

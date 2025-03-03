@@ -31,13 +31,10 @@ async def register_user(
     Register a new user.
 
     Args:
-    user_data: UserCreate - User data to create a new user.
-    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
-    request: Request - FastAPI's current request object.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    User - Created user.
+        user_data (UserCreate): User data to create a new user.
+        background_tasks (BackgroundTasks): Background tasks for sending emails.
+        request (Request): Current request object.
+        db (Session): Database session.
     """
 
     user_service = UserService(db)
@@ -69,11 +66,8 @@ async def login_user(body: UserLogin, db: Session = Depends(get_db)):
     Login a user.
 
     Args:
-    body: UserLogin - User data to login.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    Token - User's access token.
+        body (UserLogin): User data to login.
+        db (Session): Database session.
     """
 
     user_service = UserService(db)
@@ -104,13 +98,10 @@ async def request_email(
     Request email verification for a user.
 
     Args:
-    body: RequestEmail - User's email to send the verification email.
-    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
-    request: Request - FastAPI's current request object.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    str - Message indicating if the email has been sent or if the user already exists.
+        body (RequestEmail): User's email to send the verification email.
+        background_tasks (BackgroundTasks): Background tasks for sending emails.
+        request (Request): Current request object.
+        db (Session): Database session.
     """
 
     user_service = UserService(db)
@@ -131,11 +122,8 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
     Confirm user's email.
 
     Args:
-    token: str - Token from the email verification link.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    str - Message indicating if the email has been confirmed or if the user already exists.
+        token (str): Token from the email verification link.
+        db (Session): Database session.
     """
 
     email = await get_email_from_token(token)
@@ -162,13 +150,10 @@ async def reset_password(
     Reset user's password.
 
     Args:
-    body: RequestEmail - User's email to reset password.
-    background_tasks: BackgroundTasks - FastAPI's background tasks for sending emails.
-    request: Request - FastAPI's current request object.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    str - Message indicating if the email has been sent or if the user already exists.
+        body (RequestEmail): User's email to reset password.
+        background_tasks (BackgroundTasks): Background tasks for sending emails.
+        request (Request): Current request object.
+        db (Session): Database session.
     """
 
     user_service = UserService(db)
@@ -189,12 +174,9 @@ async def update_password(token: str, new_password: str, db: Session = Depends(g
     Update user's password.
 
     Args:
-    token: str - Token from the password reset link.
-    new_password: str - New password to update.
-    db: Session - SQLAlchemy's database session.
-
-    Returns:
-    str - Message indicating if the password has been updated or if the contact does not exist.
+        token (str): Token from the password reset link.
+        new_password (str): New password to update.
+        db (Session): Database session.
     """
     email = await get_email_from_token(token)
     user_service = UserService(db)
